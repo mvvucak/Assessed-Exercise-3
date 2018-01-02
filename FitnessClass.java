@@ -66,11 +66,11 @@ public class FitnessClass implements Comparable<FitnessClass> {
       
       if(thisAverage>otherAverage)
       {
-    	  return 1;
+    	  return -1;
       }
       else if(thisAverage<otherAverage)
       {
-    	  return -1;
+    	  return 1;
       }
       else
       {
