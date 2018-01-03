@@ -76,22 +76,17 @@ public class FitnessProgram {
 		//Split line read from AttendanceIn. Result is array of length 6 due to presence of ID.
 		String [] attendanceElements = line.split(" ");
 		
-		System.err.println("Length is" + attendanceElements.length);
-		
 		String id = attendanceElements[0];
 		int index = searchById(id);
-		System.err.println("index is " + index);
-		System.err.println(id);
+	
 		int [] attendance = new int [FitnessClass.ATTENDANCE_WEEKS];
 		
 		for (int i=1; i<attendanceElements.length; i++)
 		{
 			attendance[i-1] = Integer.parseInt(attendanceElements[i]);
-			System.err.println(attendance[i-1]);
 		}
 		try
 		{
-			System.err.println("Okay");
 			classList[index].setAttendance(attendance);
 		}
 		catch(ArrayIndexOutOfBoundsException e)
@@ -189,6 +184,18 @@ public class FitnessProgram {
 		tutors=String.format("%s %n", tutors);
 		
 		return tutors;
+	}
+	
+	public boolean isTimetableFull()
+	{
+		if(currentClasses<MAXIMUM_CLASSES)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 	
 	

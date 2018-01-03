@@ -178,40 +178,29 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	/**
 	 * Processes adding a class
 	 */
-	public void processAdding() {
-		
-		String id = idIn.getText();
-	    String name = classIn.getText();
-	    String tutor = tutorIn.getText();
+	public void processAdding(String id, String name, String tutor) 
+	{
 	    int time = program.findEarliestSlot();
-	    if(time!=-1)
+	    if(time!=-1)//Not sure if the if statement is needed, already taken care of by validation.
 	    {
-	    	program.insertClass(new FitnessClass(id, name, tutor, time));
-	    }
-	    
+	    	program.insertClass(new FitnessClass(id, name, tutor, time, true));
+	    }   
 	}
 
 	/**
 	 * Processes deleting a class
 	 */
-	public void processDeletion() {
-	    String id = idIn.getText();
+	public void processDeletion(String id) 
+	{
 	    int index = program.searchById(id);
-	    if(index == -1)
-	    {
-	    	//Error dialog
-	    	System.err.println("Hue");
-	    }
-	    else
-	    {
-	    	program.deleteClass(index);
-	    }
+	    program.deleteClass(index);
 	}
 
 	/**
 	 * Instantiates a new window and displays the attendance report
 	 */
-	public void displayReport() {
+	public void displayReport() 
+	{
 	    // your code here
 	}
 
@@ -219,8 +208,33 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	 * Writes lines to file representing class name, 
 	 * tutor and start time and then exits from the program
 	 */
-	public void processSaveAndClose() {
-	    // your code here
+	public void processSaveAndClose() 
+	{
+		try
+		{
+			FileWriter w = new FileWriter(classesOutFile);
+			for(int i = 0; i<program.MAXIMUM_CLASSES; i++)
+			{
+				FitnessClass current = program.getListedClass(i);
+				if(current != null)
+				{
+					String id = current.getID();
+					String name = current.getName();
+					String tutor = current.getTutor();
+					int time = current.getStartTime();
+					String outputLine = String.format("%s %s %s %d %n", id, name, tutor, time);
+					w.write(outputLine);
+				}
+				
+			}
+			w.close();
+			
+		}
+	    catch(IOException e)
+		{
+	    	
+		}
+	    
 	}
 
 	/**
@@ -228,39 +242,95 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	 * @param ae the ActionEvent
 	 */
 	public void actionPerformed(ActionEvent ae) {
-	    if(ae.getSource()==addButton)
+	    if(ae.getSource() == addButton)
 	    {
-	    	if(checkForFreeSlot() && checkId(idIn.getText())) //test to see if both being false breaks program
+	    	String id = idIn.getText();
+	    	String name = classIn.getText();
+	    	String tutor = tutorIn.getText();
+	    	if(validateAddition(id, name, tutor))
 	    	{
-	    		if(validateInput(classIn.getText(), "class name") && validateInput(tutorIn.getText(), "tutor name"))
-	    		{
-	    			processAdding();
+	    			processAdding(id, name, tutor);
 	    			updateDisplay();
-	    			resetTextFields();
-	    		}
+	    			resetTextFields();   			
 	    	}
 	    }
-	    else if(ae.getSource()==deleteButton)
+	    else if(ae.getSource() == deleteButton)
 	    {
-	    	if(!checkId(idIn.getText()))
+	    	String id = idIn.getText();
+	    	if(validateDeletion(id))
 	    	{
-	    		processDeletion();
+	    		processDeletion(id);
 	    		updateDisplay();
     			resetTextFields();
 	    	}
 	    }
+	    else if(ae.getSource() == closeButton)
+	    {
+	    	processSaveAndClose();
+	    	this.dispose();
+	    }
+	}
+	
+	
+	
+	private boolean validateDeletion(String id)
+	{
+		if(!validateInput(id, "ID"))
+		{
+			return false;
+		}
+		else if(program.searchById(id) == -1)
+		{
+			JOptionPane.showMessageDialog(null, "The ID you entered does not match any class. Plase enter a valid ID.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	
+	private boolean validateAddition(String id, String name, String tutor)
+	{
+		if(program.isTimetableFull())
+		{
+			JOptionPane.showMessageDialog(null, "The timetable is full. Please delete a class before adding a new one.", "Timetable Full", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		else if(!validateInput(id, "ID"))
+		{
+			return false;
+		}
+		else if(program.searchById(id) != -1)
+		{
+			JOptionPane.showMessageDialog(null, "The ID already exists. Please enter a different class ID.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		else if(!validateInput(name, "class name"))
+		{
+			return false;
+		}
+		else if(!validateInput(tutor, "tutor name"))
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+		
 	}
 	
 	private boolean validateInput(String input, String type)
 	{
 		if(input.isEmpty() || input.trim().isEmpty())
 		{
-			JOptionPane.showMessageDialog(null, "The "+ type +" cannot be empty.", "Invalid Iput", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "The "+ type +" cannot be empty.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		else if(input.split(" ").length>1)
 		{
-			JOptionPane.showMessageDialog(null, "The "+ type +" must be one word long (no spaces).", "Invalid Iput", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "The "+ type +" must be one word long (no spaces).", "Invalid Input", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		else
@@ -268,44 +338,7 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 			return true;
 		}		
 	}
-	
-	private boolean validateAllFields()
-	{
-		boolean idValid = validateInput(idIn.getText(), "ID");
-		boolean classValid = validateInput(classIn.getText(), "Class Name");
-		boolean tutorValid = validateInput(tutorIn.getText(), "Tutor Name");
-		boolean allValid = idValid && classValid && tutorValid;
-		return allValid;
-	}
-	
-	private boolean checkId(String id)
-	{
-		int index = program.searchById(id);
-		if(index != -1)
-		{
-			JOptionPane.showMessageDialog(null, "The ID already exists. Please enter a different class ID.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-	
-	private boolean checkForFreeSlot()
-	{
-		int numberOfClasses = program.getCurrentClasses();
-		if(numberOfClasses < 7)
-		{
-			return true;
-		}
-		else
-		{
-			JOptionPane.showMessageDialog(null, "The timetable is full. Please delete a class before adding a new one.", "Timetable Full", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-	}
-	
+
 	private void resetTextFields()
 	{
 		idIn.setText("");

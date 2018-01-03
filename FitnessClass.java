@@ -29,6 +29,19 @@ public class FitnessClass implements Comparable<FitnessClass> {
 		startTime = st;
 	}
 	
+	public FitnessClass(String id, String n, String t, int st, boolean noAttendance)
+	{
+		ID = id;
+		name = n;
+		tutor = t;
+		startTime = st;
+		attendance = new int[ATTENDANCE_WEEKS];
+		for(int i=0; i<ATTENDANCE_WEEKS; i++)
+		{
+			attendance[i] = 0;
+		}
+	}
+	
 	public FitnessClass(String details)
 	{
 		ID = details.split(" ")[0];
