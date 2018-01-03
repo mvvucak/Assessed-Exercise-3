@@ -46,6 +46,7 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		layoutBottom();
 		program = new FitnessProgram();
 		initLadiesDay();
+		initAttendances();
 		updateDisplay();
 		setVisible(true);
 	}
@@ -201,7 +202,7 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	 */
 	public void displayReport() 
 	{
-	    // your code here
+	    report = new ReportFrame(program);
 	}
 
 	/**
@@ -213,7 +214,7 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		try
 		{
 			FileWriter w = new FileWriter(classesOutFile);
-			for(int i = 0; i<program.MAXIMUM_CLASSES; i++)
+			for(int i = 0; i < FitnessProgram.MAXIMUM_CLASSES; i++)
 			{
 				FitnessClass current = program.getListedClass(i);
 				if(current != null)
@@ -268,6 +269,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	    {
 	    	processSaveAndClose();
 	    	this.dispose();
+	    }
+	    else if(ae.getSource() == attendanceButton)
+	    {
+	    	displayReport();
 	    }
 	}
 	

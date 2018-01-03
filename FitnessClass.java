@@ -58,6 +58,7 @@ public class FitnessClass implements Comparable<FitnessClass> {
 		
 		for(int i=0; i<ATTENDANCE_WEEKS; i++)
 		{
+			System.err.println("Index is " + i);
 			total = total + attendance[i];
 		}
 		
@@ -67,7 +68,7 @@ public class FitnessClass implements Comparable<FitnessClass> {
 	
 	public String getReportFormat()
 	{
-		String fine = String.format("%5s %10s %10s %4d %4d %4d %4d %4d %8f", ID, name, tutor, attendance[0], attendance[1], attendance[2], attendance [3], attendance[4], getAverageAttendance());
+		String fine = String.format(" %-5s %-15s %-15s %4d %4d %4d %4d %4d %16.2f", ID, name, tutor, attendance[0], attendance[1], attendance[2], attendance [3], attendance[4], getAverageAttendance());
 		return fine;
 	}
 	

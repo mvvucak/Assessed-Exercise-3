@@ -122,11 +122,12 @@ public class FitnessProgram {
 			{
 					System.err.println(classList[j].getID());
 					temp[tempIndex]=classList[j];
-					System.err.println("ID is" + temp[tempIndex].getID());
+					System.err.println("ID is " + temp[tempIndex].getID());
 					tempIndex++;
 					
 			}
 		}
+		System.err.println("Temp index is " + tempIndex);
 		
 		Arrays.sort(temp);
 		return temp;
