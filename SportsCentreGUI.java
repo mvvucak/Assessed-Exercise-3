@@ -78,7 +78,8 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		}
 		catch(FileNotFoundException e)
 		{
-			System.err.println("File Not Found");
+			JOptionPane.showMessageDialog(null, classesInFile + " is not in the directory.", "File Not Found", JOptionPane.ERROR_MESSAGE);
+
 		}
 		catch(IOException e)
 		{
@@ -109,7 +110,8 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	    }
 	    catch(FileNotFoundException e)
 	    {
-	    	System.err.println("File Not Found");
+			JOptionPane.showMessageDialog(null, attendancesFile + " is not in the directory.", "File Not Found", JOptionPane.ERROR_MESSAGE);
+
 	    }
 	    catch(IOException e)
 	    {
@@ -244,6 +246,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 				
 			}
 			w.close();
+			if(report != null)
+			{
+				report.dispose();
+			}
 			this.dispose();
 			
 		}
@@ -288,7 +294,16 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	    //If displaying attendance report.
 	    else if(ae.getSource() == attendanceButton)
 	    {
-	    	displayReport();
+	    	if(program.getCurrentClasses()<1)
+	    	{
+				JOptionPane.showMessageDialog(null, "There are no classes to display attendance for. Please add a class.", "No Classes", JOptionPane.ERROR_MESSAGE);
+
+	    	}
+	    	else
+	    	{
+	    		displayReport();
+	    	}
+	    	
 	    }
 	    //If closing the program.
 	    else if(ae.getSource() == closeButton)
