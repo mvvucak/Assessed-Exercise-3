@@ -38,15 +38,20 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Boyd-Orr Sports Centre");
 		setSize(700, 300);
+		//Create text area for timetable display
 		display = new JTextArea();
 		display.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		display.setEditable(false);
 		add(display, BorderLayout.CENTER);
+		
 		layoutTop();
 		layoutBottom();
+		//Create Fitness Program isntance using default constructor.
 		program = new FitnessProgram();
+		//Populate Fitness Program
 		initLadiesDay();
 		initAttendances();
+		//Add timetable to text area.
 		updateDisplay();
 		setVisible(true);
 	}
@@ -60,8 +65,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		{
 			FileReader r = new FileReader(classesInFile);
 			Scanner s = new Scanner(r);
+			//Iterate through classes input file.
 			while(s.hasNextLine())
 			{
+				//Instantiate fitness class for each line and add to program.
 				String line = s.nextLine();
 				program.insertClass(new FitnessClass(line));
 			}
@@ -90,8 +97,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	    {
 	    	FileReader r = new FileReader(attendancesFile);
 			Scanner s = new Scanner(r);
+			//Iterate through attendance input file.
 			while(s.hasNextLine())
 			{
+				//Input attendance for each class in file.
 				String line = s.nextLine();
 				program.populateAttendance(line);
 			}
@@ -113,10 +122,14 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	 */
 	public void updateDisplay() {
 		//Can make this more fancy, perhaps using for loop and earliest start time and maximum classes constants)
+		//Create header for timetable display, containing all timeslots
 		String timeSlots = String.format("%-12s|%-12s|%-12s|%-12s|%-12s|%-12s|%-12s|%n", "9-10", "10-11","11-12","12-13","13-14","14-15", "15-16");
+		//Create second line of timetable display, containing all class names.
 		String classNames = program.getAllClassNames();
+		//Create final line of timetable display, containing all tutor names.
 		String tutors = program.getAllTutors();
 	    
+		//Add timetable to text area.
 		display.setText(timeSlots);
 		display.append(classNames);
 		display.append(tutors);
@@ -214,8 +227,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		try
 		{
 			FileWriter w = new FileWriter(classesOutFile);
+			//Iterate through class list
 			for(int i = 0; i < FitnessProgram.MAXIMUM_CLASSES; i++)
 			{
+				//If class is not a null value, write its details to the file.
 				FitnessClass current = program.getListedClass(i);
 				if(current != null)
 				{
@@ -229,6 +244,7 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 				
 			}
 			w.close();
+			this.dispose();
 			
 		}
 	    catch(IOException e)
@@ -243,8 +259,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	 * @param ae the ActionEvent
 	 */
 	public void actionPerformed(ActionEvent ae) {
+		//If adding a class
 	    if(ae.getSource() == addButton)
 	    {
+	    	//Grab all input and validate, then process addition.
 	    	String id = idIn.getText();
 	    	String name = classIn.getText();
 	    	String tutor = tutorIn.getText();
@@ -255,8 +273,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 	    			resetTextFields();   			
 	    	}
 	    }
+	    //If deleting a class
 	    else if(ae.getSource() == deleteButton)
 	    {
+	    	//Grab ID input, validate and process deletion.
 	    	String id = idIn.getText();
 	    	if(validateDeletion(id))
 	    	{
@@ -265,25 +285,32 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
     			resetTextFields();
 	    	}
 	    }
-	    else if(ae.getSource() == closeButton)
-	    {
-	    	processSaveAndClose();
-	    	this.dispose();
-	    }
+	    //If displaying attendance report.
 	    else if(ae.getSource() == attendanceButton)
 	    {
 	    	displayReport();
 	    }
+	    //If closing the program.
+	    else if(ae.getSource() == closeButton)
+	    {
+	    	processSaveAndClose();
+	    	
+	    }
 	}
 	
-	
-	
+	/** 
+	 * Checks to see if ID input by user is valid (not empty, only 1 word, matches existing class)
+	 * Invalid ID results in error dialog being output.
+	 * @param id, the String ID of an existing class input by the user.
+	 * @return Whether the ID is valid. False if not. 
+	 */
 	private boolean validateDeletion(String id)
 	{
 		if(!validateInput(id, "ID"))
 		{
 			return false;
 		}
+		//Check if ID actually exists. If not, output error dialog.
 		else if(program.searchById(id) == -1)
 		{
 			JOptionPane.showMessageDialog(null, "The ID you entered does not match any class. Plase enter a valid ID.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
@@ -295,6 +322,15 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		}
 	}
 	
+	/** 
+	 * Checks to see if ID, class name and tutor name input by user are valid (not empty, only 1 word).
+	 * Also checks if there is an available time slot and if class with specified ID already exists.
+	 * Error dialogs if inputs are invalid or no timeslots available.
+	 * @param id the id of a new class
+	 * @param name the name of a new class
+	 * @param tutor the name of the tutor teaching the new class
+	 * @return Whether the inputs are valid, non duplicate and there is a timeslot available.
+	 */
 	private boolean validateAddition(String id, String name, String tutor)
 	{
 		if(program.isTimetableFull())
@@ -306,6 +342,7 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		{
 			return false;
 		}
+		//Check if ID is already taken. If yes, output error dialog.
 		else if(program.searchById(id) != -1)
 		{
 			JOptionPane.showMessageDialog(null, "The ID already exists. Please enter a different class ID.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
@@ -319,6 +356,7 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		{
 			return false;
 		}
+		//Return true if all conditions are met.
 		else
 		{
 			return true;
@@ -326,6 +364,12 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		
 	}
 	
+	/** 
+	 * Checks whether provided input is empty or more than one word long.
+	 * @param input the specific String to be validated
+	 * @param the type of input, for accurate error dialogs (ID, class name or tutor name).
+	 * @return Whether the given input is not empty and only one word.
+	 */
 	private boolean validateInput(String input, String type)
 	{
 		if(input.isEmpty() || input.trim().isEmpty())
@@ -343,7 +387,10 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 			return true;
 		}		
 	}
-
+	
+	/** 
+	 * Wipes all text fields so new information can be entered.
+	 */
 	private void resetTextFields()
 	{
 		idIn.setText("");
@@ -351,8 +398,5 @@ public class SportsCentreGUI extends JFrame implements ActionListener {
 		tutorIn.setText("");
 	}
 	
-	public static void main(String[] args)
-	{
-		SportsCentreGUI test = new SportsCentreGUI();
-	}
+	
 }
